@@ -7,28 +7,24 @@ FROM builder
 
 ARG ARCH=armel
 ARG VERSION="1.4.2"
-LABEL maintainer="Jay MOULIN <https://jaymoulin.me/me/docker-jdownloader> <https://twitter.com/MoulinJay>"
 LABEL version="${VERSION}-${ARCH}"
 
-COPY ./${ARCH}/*.jar /opt/JDownloader/libs/
-ENV XDG_DOWNLOAD_DIR=/opt/JDownloader/Downloads
+COPY ./${ARCH}/*.jar /jdownloader/libs/
+ENV XDG_DOWNLOAD_DIR=/jdownloader/downloads
 
 # archive extraction uses sevenzipjbinding library
 # which is compiled against libstdc++
-RUN mkdir -p /opt/JDownloader/ && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install openjdk-8-jre ffmpeg wget -y && \
-    wget -O /opt/JDownloader/JDownloader.jar "http://installer.jdownloader.org/JDownloader.jar?$RANDOM" && \
-    chmod +x /opt/JDownloader/JDownloader.jar && \
-    chmod 777 /opt/JDownloader/ -R && \
+    wget -O /jdownloader/JDownloader.jar "http://installer.jdownloader.org/JDownloader.jar?$RANDOM" && \
+    chmod 777 /jdownloader/ -R && \
     apt-get autoremove -y && \
     rm /usr/bin/qemu-*-static
 
-COPY daemon.sh /opt/JDownloader/
-COPY default-config.json.dist /opt/JDownloader/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json.dist
+COPY daemon.sh /jdownloader/
+COPY default-config.json.dist /jdownloader/
 COPY configure.sh /usr/bin/configure
 
 EXPOSE 3129
-WORKDIR /opt/JDownloader
 
-CMD ["/opt/JDownloader/daemon.sh"]
+CMD ["/jdownloader/daemon.sh"]
